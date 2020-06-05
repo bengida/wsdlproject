@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="12a95fe2-d94d-4575-8014-fbe2c4a6ee77" >
+		<wsc:connection wsdlLocation="http://mu.learn.mulesoft.com/delta?wsdl" service="TicketServiceService" port="TicketServicePort" address="http://mu.learn.mulesoft.com/delta">
+			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+		</wsc:connection>
+	</wsc:config>
+	<flow name="mainFlow" doc:id="621f18b8-c565-4359-9f56-cf3fca26f28e" >
+		<ee:transform doc:name="Transform Message" doc:id="e1cbdbcf-d229-40f5-95d1-c3317b6b5034">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.training.mulesoft.com/
+---
+{
+	ns0#listAllFlights: null
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume" doc:id="aa4ce831-52e4-4afe-a3f0-5002db1d36bf" config-ref="Web_Service_Consumer_Config" operation="listAllFlights" />
+		<ee:transform doc:name="Transform Message" doc:id="1209458c-d8bb-4301-a4e8-5dd2467c3dee" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+listAllFlight: 
+{
+	deltaFlightPayload: payload,
+	attributes: attributes.protocolHeaders,
+	additionalData: attributes.additionalTransportData
+} ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="flightFlow" doc:id="3cdb163c-79ae-445c-b43f-33481af1cf63" >
+		<ee:transform doc:name="Transform Message" doc:id="86b66c3c-f9c1-4cde-b7fb-da2504cadcf3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.training.mulesoft.com/
+---
+{
+	ns0#findFlight: null
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="findFlight" doc:name="Consume" doc:id="9724fd03-bf8a-4fcb-b242-f85eeb10821f" config-ref="Web_Service_Consumer_Config" />
+		<ee:transform doc:name="Transform Message" doc:id="36ed94be-f2aa-4c34-808b-5861f418ab1b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+findFlight: 
+{
+	deltaFlightPayload: payload,
+	attributes: attributes.protocolHeaders,
+	additionalData: attributes.additionalTransportData
+} ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
