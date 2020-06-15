@@ -3,13 +3,13 @@ jdk:
     - openjdk8
 cache:
     directories:
-        - $HOME/.cache
+        - "$HOME/.cache"
 jobs:
     - stage: deploy
       name: 'Deploy To Dev Environment'
       script:
+       - mvn clean verify
        - mvn clean install
        - cp .travis.settings.xml $HOME/.m2/settings.xml
-       - mvn dependency:purge-local-repository -DmanualInclude="org.mule.tools.maven:mule-app-maven-plugin:1.7"
        - mvn deploy -DmuleDeploy -Dserver=$server -Denvironment=$environment -Dworkers=$workers -DworkerType=$workerType -DmuleVersion=$muleVersion -DappName=$appName
       if: branch = dev
